@@ -45,14 +45,22 @@ class InfinigenData(SourceData):
         subdir = self.subdir_paths[f"{split}{self.opt.year}"]
         img_dir, img_filename = os.path.split(img_path)
         img_dir_parts = img_dir.split('/')
-        new_img_filename = f"{img_dir_parts[-5]}_{img_dir_parts[-4]}_{img_dir_parts[-1]}_{img_filename[:-4]}{img_filename[-4:]}" #_{no:05d}
-        shutil.copy(img_path, os.path.join(subdir, new_img_filename))
+        new_img_filename = f"{img_dir_parts[-5]}_{img_dir_parts[-4]}_{img_dir_parts[-1]}_{img_filename[:-4]}{img_filename[-4:]}"
+        new_img_path = os.path.join(subdir, new_img_filename)
+        if not os.path.exists(new_img_path):#_{no:05d}
+            shutil.copy(img_path, new_img_path)
+
+        # Copy No Water image too if it exists
+        no_water_img_path = img_path.replace('Image', 'ImageNoWater')
+        no_water_subdir = f"{subdir}_nowater"
+        if os.path.exists(no_water_img_path) and not os.path.exists(os.path.join(no_water_subdir, img_filename)):
+            shutil.copy(no_water_img_path, os.path.join(no_water_subdir, new_img_filename))
+
 
         # Get image data
         img = read_image(img_path)
         _, H, W = img.shape
-        image_data = {'license': 1,
-                      'file_name': new_img_filename,
+        image_data = {'file_name': new_img_filename,
                       'height': img.shape[1],
                       'width': img.shape[2],
                       'id': self.image_id}

@@ -10,7 +10,7 @@ from datasets.datasets import SourceData
 from sqapi.api import SQAPI
 from sqapi.media import SQMediaObject
 
-from .squidle_connection import SquidleConnection
+from datasets.squidle_connection import SquidleConnection
 
 
 class SquidleData(SourceData):
@@ -21,7 +21,7 @@ class SquidleData(SourceData):
             self.test_split = self.opt.test_split
         self.sq_id_to_cat_id = {cat: i + 1 for i, cat in enumerate(opt.squidle_mapping)}
         self.sqapi = SQAPI(api_key=self.opt.api_token, host=self.opt.url)
-        self.squidle_connection = SquidleConnection(sqapi=self.sqapi, label_map_file="./datasets/example_coco.json")
+        self.squidle_connection = SquidleConnection(sqapi=self.sqapi)
 
         if image_dir is not None:  # if there's an image_dir get annotations/media for creating coco annotations
             self.image_dir = image_dir

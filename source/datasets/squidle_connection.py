@@ -1,4 +1,4 @@
- from collections import Counter
+from collections import Counter
 
 from sqapi.request import query_filter as qf
 from sqapi.request import Request
@@ -11,9 +11,8 @@ class Delete(Request):
 
 
 class SquidleConnection:
-    def __init__(self, sqapi=None, **sqapi_kwargs):
+    def __init__(self, sqapi=None):
         self.sqapi = sqapi
-        # self.annotator_name = annotator_name.format(user=self.sqapi_old.current_user)  #(annotator_name or self.sqapi_old.cliargs.annotator_name).format(user=self.sqapi_old.current_user)
 
     def delete(self, endpoint, data=None, json_data=None, **kwargs) -> Delete:
         return Delete(endpoint, sqapi=self.sqapi, data=data, json_data=json_data, **kwargs)
