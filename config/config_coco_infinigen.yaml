@@ -1,0 +1,9 @@
+# List of possible jobs include 'adapt_target', 'train_source'
+defaults:
+  - _self_
+  - dataset: infinigen_default
+
+seed: 156
+tags: "dev"
+
+output_dir: ~/phd_data/infinigen/collated_outputs/

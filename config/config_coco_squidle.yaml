@@ -1,0 +1,8 @@
+# List of possible jobs include 'adapt_target', 'train_source'
+defaults:
+  - dataset: squidle_urchin_default
+  - _self_
+seed: 156
+tags: "dev"
+
+output_dir: ./outputs/

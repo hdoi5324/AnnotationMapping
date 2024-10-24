@@ -1,0 +1,23 @@
+defaults:
+  - squidle_default
+
+folder: squidle_east_tas_urchins
+num_classes: 2 # includes background
+
+coco_mapping:
+  - "Seaurchin"
+
+# Generating squidle / coco datsets
+test_split: 0.0 # set to blank for default (used in urchin)
+ratio_non_annotated_images: 1
+inclusive: True
+annotation_set_ids:
+  - 13088 # East Tasmania, ClimateChangeAI
+  # - 10690 #urchin 2009
+  #- 12479 # urchin 2011
+
+squidle_mapping:
+  - 13029 # sea urchin
+needs_review_annotation_set_ids:
+exclude_annotation_sets:
+

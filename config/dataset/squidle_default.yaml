@@ -1,0 +1,9 @@
+type: "coco"
+year: 2023
+datatype: Squidle
+exclude_annotation_set_ids:
+needs_review_annotation_set_ids:
+  -
+api_token: "" # select user api token
+annotate_api_token: "" # annotator(write) user api token
+url: "https://squidle.org/"
