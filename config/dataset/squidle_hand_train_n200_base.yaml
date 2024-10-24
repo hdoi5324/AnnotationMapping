@@ -1,0 +1,31 @@
+defaults:
+  - squidle_hand_default
+folder: sq_hand_train85_n200_base
+test_split: 0.0 # set to blank for default (used in urchin)
+inclusive: True
+ratio_non_annotated_images: 0
+annotation_set_ids:
+  - 14186 #train85 with base classes
+  - 13488 # neg-pos
+  - 14174 # adjacent images train85 with base classes
+  - 14188 # adjacent images for test15 (Need to annotate base classes)
+exclude_annotation_set_ids:
+  - 13496 # val
+  - 13372 # test
+num_classes: 8
+coco_mapping:
+  - "Handfish"
+  - "Helicolenus"
+  - "Caesio"
+  - "Bryozoa soft dendroid red-brown"
+  - "arborescent orange"
+  - "arborescent orange thin"
+  - "fan white thick"
+squidle_mapping:
+  - 13450 # handfish
+  - 7312 # helico
+  - 7311 # caesio
+  - 11514 # Bryozoa soft dendroid red-brown
+  - 7042 # arborescent orange
+  - 7052 # arborescent orange thin
+  - 7016 # fan white thick

@@ -1,0 +1,13 @@
+defaults:
+  - squidle_hand_default
+folder: sq_hand_train85_n200v2
+test_split: 0.0 # set to blank for default (used in urchin)
+inclusive: True
+ratio_non_annotated_images: 0
+annotation_set_ids:
+  - 13497
+  - 13498
+  - 13499
+  - 13500
+exclude_annotation_set_ids:
+

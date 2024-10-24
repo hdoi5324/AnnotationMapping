@@ -1,0 +1,33 @@
+defaults:
+  - squidle_hand_default
+folder: squidle_handfish_pretrain3b
+type: "coco"
+num_classes: 4 # includes background
+year: 2023
+
+coco_mapping:
+#  - "Handfish"
+  - "Helicolenus"
+  - "Bryozoa soft dendroid red-brown"
+  - "fan white thick"
+#  - "fan orange thick"
+#  - "fan peach thick"
+# Generating squidle / coco datsets
+datatype: Squidle
+test_split: 0.15 # set to blank for default (used in urchin)
+ratio_non_annotated_images: 0
+inclusive: True
+annotation_set_ids:
+  - 13488
+  #- 13479
+  #- 13474
+needs_review_annotation_set_ids:
+  - 13205
+exclude_annotation_set_ids:
+squidle_mapping:
+#  - 13450 # handfish
+  - 7312 # helico
+  - 11514 # Bryozoa soft dendroid red-brown
+  - 7016 # fan white thick
+  #- 7012 # fan orange thick
+  #- 7014 # fan peach thick

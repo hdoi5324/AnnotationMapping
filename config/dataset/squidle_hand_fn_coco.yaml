@@ -1,0 +1,26 @@
+defaults:
+  - squidle_hand_default
+folder: sq_hand_fn
+test_split: 0.0 # set to blank for default (used in urchin)
+inclusive: True
+ratio_non_annotated_images: 0
+annotation_set_ids:
+  - 13330
+squidle_mapping:
+  - 999999
+  - 7312 # helico
+  - 7311 # caesio
+  - 7042 # arborescent orange
+  - 7052
+  - 7014
+  - 7012
+  - 7016
+coco_mapping:
+  - "handfish placeholder"
+  - "Helicolenus"
+  - "Caesio"
+  - "Arborescent Orange"
+  - "Arborescent Orange thin"
+  - "Fan peach thick"
+  - "Fan thick orange"
+  - "Fan thick white"
