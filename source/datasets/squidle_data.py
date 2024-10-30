@@ -14,7 +14,7 @@ from datasets.squidle_connection import SquidleConnection
 
 
 class SquidleData(SourceData):
-    def __init__(self, opt, image_dir=None, semi_supervised=False):
+    def __init__(self, opt, image_dir=None, subdir_paths=None):
         super(SquidleData, self).__init__()
         self.opt = opt
         if self.opt.test_split is not None:
@@ -22,6 +22,7 @@ class SquidleData(SourceData):
         self.sq_id_to_cat_id = {cat: i + 1 for i, cat in enumerate(opt.squidle_mapping)}
         self.sqapi = SQAPI(api_key=self.opt.api_token, host=self.opt.url)
         self.squidle_connection = SquidleConnection(sqapi=self.sqapi)
+        self.subdir_paths = subdir_paths
 
         if image_dir is not None:  # if there's an image_dir get annotations/media for creating coco annotations
             self.image_dir = image_dir
@@ -93,7 +94,8 @@ class SquidleData(SourceData):
                         self.split_dict['train'].append(path)
                     else:
                         self.split_dict['test'].append(path)
-                self.split_dict['train'], self.split_dict['test'] = train_test_split(list(self.media_dict.keys()), test_size=self.test_split)
+                # Use below to get a random split rather than in order of path
+                #self.split_dict['train'], self.split_dict['test'] = train_test_split(list(self.media_dict.keys()), test_size=self.test_split)
 
     def save_media_collection_data(self, media_collection_id, media_ids_to_ignore=[], results_per_page=200,
                                    no_annotation_ratio=500):
@@ -182,7 +184,10 @@ class SquidleData(SourceData):
         return get_bbox_from_point_in_pixels(x, y, width, height, buffer=buffer)
 
     def get_image_data(self, split, i):
-        img_path = self.split_dict[split][i]
+        # Copy image to split directory (test or train)
+        img_path = self._get_image(split, i)
+        self.copy_image_to_split(split, img_path, os.path.split(img_path)[1])
+
         [media, anns] = self.media_dict[img_path]
         img = Image.open(img_path)
         # if len(anns) == 0:

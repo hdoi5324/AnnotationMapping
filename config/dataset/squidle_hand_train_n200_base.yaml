@@ -12,7 +12,6 @@ annotation_set_ids:
 exclude_annotation_set_ids:
   - 13496 # val
   - 13372 # test
-num_classes: 8
 coco_mapping:
   - "Handfish"
   - "Helicolenus"

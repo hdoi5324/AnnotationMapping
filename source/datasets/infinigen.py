@@ -36,24 +36,25 @@ class InfinigenData(SourceData):
         self.subdir_paths = subdir_paths
 
 
+    def get_new_filename(self, img_path):
+        img_dir, img_filename = os.path.split(img_path)
+        img_dir_parts = img_dir.split('/')
+        new_img_filename = f"{img_dir_parts[-5]}_{img_dir_parts[-4]}_{img_dir_parts[-1]}_{img_filename[:-4]}{img_filename[-4:]}"  # _{no:05d}
+        return new_img_filename
+
     def get_image_data(self, split, no):
         # Generate annotation data using infinigen object and instance marks.
         # Based on infinigen and blenderproc approaches to segmentation
 
         # Copy image to split directory (test or train)
         img_path = self._get_image(split, no)
-        subdir = self.subdir_paths[f"{split}{self.opt.year}"]
-        img_dir, img_filename = os.path.split(img_path)
-        img_dir_parts = img_dir.split('/')
-        new_img_filename = f"{img_dir_parts[-5]}_{img_dir_parts[-4]}_{img_dir_parts[-1]}_{img_filename[:-4]}{img_filename[-4:]}"
-        new_img_path = os.path.join(subdir, new_img_filename)
-        if not os.path.exists(new_img_path):#_{no:05d}
-            shutil.copy(img_path, new_img_path)
+        new_img_filename = self.get_new_filename(img_path)
+        subdir = self.copy_image_to_split(split, img_path, new_img_filename)
 
         # Copy No Water image too if it exists
         no_water_img_path = img_path.replace('Image', 'ImageNoWater')
         no_water_subdir = f"{subdir}_nowater"
-        if os.path.exists(no_water_img_path) and not os.path.exists(os.path.join(no_water_subdir, img_filename)):
+        if os.path.exists(no_water_img_path) and not os.path.exists(os.path.join(no_water_subdir, os.path.split(img_path)[1])):
             shutil.copy(no_water_img_path, os.path.join(no_water_subdir, new_img_filename))
 
 

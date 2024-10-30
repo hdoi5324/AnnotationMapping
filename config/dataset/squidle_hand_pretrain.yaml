@@ -2,7 +2,6 @@ defaults:
   - squidle_hand_default
 folder: squidle_handfish_pretrain
 type: "coco"
-num_classes: 7 # includes background
 year: 2023
 
 coco_mapping:

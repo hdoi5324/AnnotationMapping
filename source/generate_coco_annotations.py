@@ -8,8 +8,6 @@ import numpy as np
 from omegaconf import DictConfig
 from tqdm import tqdm
 
-from datasets.infinigen import InfinigenData
-from datasets.squidle_data import SquidleData
 from datasets.utils_coco import new_coco_dataset
 from utils.set_random_seed import set_random_seed
 
@@ -29,13 +27,15 @@ def main(opt: DictConfig) -> None:
         os.makedirs(p, exist_ok=True)
         subdir_paths[subdir] = p
     if opt.dataset.datatype == "Infinigen":
+        from datasets.infinigen import InfinigenData
         dataset = InfinigenData(output_dir, opt=opt.dataset, subdir_paths=subdir_paths)
         # Create dir for no water images
         for subdir in [f"test{opt.dataset.year}_nowater", f"train{opt.dataset.year}_nowater"]:
             p = os.path.join(output_dir, subdir)
             os.makedirs(p, exist_ok=True)   
     elif opt.dataset.datatype == "Squidle":
-        dataset = SquidleData(opt.dataset, image_dir=output_dir)
+        from datasets.squidle_data import SquidleData
+        dataset = SquidleData(opt.dataset, image_dir=output_dir, subdir_paths=subdir_paths)
     else:
         print(f"Not implemented: {opt.dataset.datatype}")
     generate_coco_annotations(dataset, subdir_paths, output_dir, opt)

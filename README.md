@@ -20,7 +20,7 @@ Use config files in `config/dataset` to define annotation set ids, mappings of s
 The code also has capability to generate new annotation sets in squidle but this is more advanced.  
 
 ```commandline
-python source/generate_coco_annotations.py --config-name=config_coco_squidle.yaml dataset="squidle_urchin_default.yaml"
+python source/generate_coco_annotations.py --config-name=config_coco_squidle.yaml dataset="squidle_hand_default.yaml" dataset.annotation_set_ids=[15800] dataset.folder=squidle_handfish_15800
 ```
 
 ### Infinigen
@@ -31,7 +31,7 @@ Use the config file `config/dataset/infinigen_default.yaml` to specify source fo
 The config file `config/config_coco_infinigen.yaml` specifies the directory of infinigen data (output_dir).
 
 ```commandline
-python source/generate_coco_annotations.py --config-name=config_coco_infinigen.yaml dataset.folder="nudi_handfish_auv_v1"
+python source/generate_coco_annotations.py --config-name=config_coco_infinigen.yaml dataset.folder="nudi_handfish_auv_v2"
 ```
 
 
