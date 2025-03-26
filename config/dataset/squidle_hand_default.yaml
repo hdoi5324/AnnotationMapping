@@ -8,7 +8,7 @@ coco_mapping:
 #  - "Caesio"
 
 # Generating squidle / coco datsets
-test_split: 0.30 # set to blank for default (used in urchin)
+test_split: 0.00 # set to blank for default (used in urchin)
 ratio_non_annotated_images: 1
 inclusive: True
 annotation_set_ids:
