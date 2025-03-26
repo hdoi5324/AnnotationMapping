@@ -1,0 +1,17 @@
+defaults:
+  - squidle_hand_default
+folder: sq_hand_target
+test_split: 1.0 # set to blank for default (used in urchin)
+inclusive: True
+annotation_set_ids:
+  - 13372
+  - 13373
+#  - 10818
+#  - 10819
+#  - 10820
+#  - 10827
+#  - 10829
+#  - 13000
+#  - 13001
+#  - 9452
+#  - 13180

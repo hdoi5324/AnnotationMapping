@@ -1,0 +1,9 @@
+defaults:
+  - squidle_hand_default
+folder: sq_hand_test15_seriesv2
+test_split: 1.0 # set to blank for default (used in urchin)
+inclusive: True
+annotation_set_ids:
+  - 15877
+exclude_annotation_set_ids:
+ratio_non_annotated_images: -1

@@ -1,7 +1,6 @@
 defaults:
   - squidle_default
 folder: squidle_handfish_default
-num_classes: 2 # includes background
 
 coco_mapping:
   - "Handfish"
@@ -9,73 +8,12 @@ coco_mapping:
 #  - "Caesio"
 
 # Generating squidle / coco datsets
-test_split: 0.0 # set to blank for default (used in urchin)
-ratio_non_annotated_images: 100
+test_split: 0.00 # set to blank for default (used in urchin)
+ratio_non_annotated_images: 1
 inclusive: True
 annotation_set_ids:
 needs_review_annotation_set_ids:
-  - 13142
-  - 13150
-  - 13156
-  - 13144
-  - 13146
-  - 13147
-  - 13148
-  - 13149
-  - 13152
-  - 13153
-  - 13157
-  - 13159
-  - 13161
-  - 13163
-  - 13180
-  - 13205
-  - 13207
-  - 13208
-  - 13209
-  - 13210
-  - 13240
-  - 13252
-  - 13264
-  - 13285
-  - 13286
-  - 13287
-  - 13288
-  - 13289
-  - 13308
-  - 13309
-  - 13310
-  - 13311
-  - 13312
-  - 13319
-#  - 13377
-  - 13378
-  - 13379
-  - 13382
-  - 13383
-  - 13385
-  - 13386
-  - 13387
-  - 13388
-  - 13389
-  - 14174 # adjacent images of train85
-  - 14188 # adjacent images of test15
 exclude_annotation_set_ids:
-  - 13330
-#  - 13326
-#  - 13321
-  - 13264
-#  - 13267
-#  - 13248
-#  - 13280
-#  - 13279
-#  - 13242
-  - 13308
-  - 13309
-  - 13310
-  - 13311
-  - 13312
-  - 13319
 squidle_mapping:
   - 13450 # handfish
 #  - 7312 # helico

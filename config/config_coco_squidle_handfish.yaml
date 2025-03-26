@@ -1,9 +1,0 @@
-# List of possible jobs include 'adapt_target', 'train_source'
-defaults:
-  - _self_
-  - dataset: squidle_hand_pretrain
-
-seed: 156
-tags: "dev"
-
-output_dir: ./outputs/

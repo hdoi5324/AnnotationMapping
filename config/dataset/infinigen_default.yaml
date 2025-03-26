@@ -1,10 +1,8 @@
-#defaults:
-folder: test # include water or no water in name when running generate_coco_annotations
+datatype: Infinigen
 type: "coco"
-num_classes: 2 # includes background
 year: 2023
 
-datatype: Infinigen
+folder: test # name of source folder
 test_split: 0.2 # set to blank for default (used in urchin)
 
 ooi:
