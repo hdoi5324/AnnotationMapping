@@ -6,12 +6,12 @@ import cv2
 import numpy as np
 from PIL import Image
 from sklearn.model_selection import train_test_split
-from datasets.datasets import SourceData
+from .datasets import SourceData
 from sqapi.api import SQAPI
 from sqapi.media import SQMediaObject
 
-from datasets.squidle_connection import SquidleConnection
-
+from .squidle_connection import SquidleConnection
+from .utils_squidle import get_image_name
 
 class SquidleData(SourceData):
     def __init__(self, opt, image_dir=None, subdir_paths=None):
@@ -145,7 +145,7 @@ class SquidleData(SourceData):
     def save_media_image(self, media_item):
         # Get image and save
         media_url = media_item.get('path_best')
-        image_name = self.get_image_name(media_url)
+        image_name = get_image_name(media_url)
         image_filepath = os.path.join(self.image_dir, image_name)
         if image_filepath not in self.media_dict.keys():
             media_type = media_item.get("media_type", {}).get("name")
@@ -162,13 +162,6 @@ class SquidleData(SourceData):
             print(f"Saving {image_filepath}")
         return image_filepath
 
-    def get_image_name(self, url):
-        img_name = os.path.split(url)
-        if len(img_name[1]) == 0:
-            img_name = os.path.basename(img_name[0])
-        else:
-            img_name = img_name[1]
-        return img_name
 
     def get_bbox_in_pixels(self, x, y, polygon, width, height, buffer=0.05):
         # Return the bounding box based on the max and min x and y coordinates
@@ -192,12 +185,10 @@ class SquidleData(SourceData):
         img = Image.open(img_path)
         # if len(anns) == 0:
         #    print("No annotations ")
-        img_data = {'license': 1,
-                    'file_name': os.path.basename(img_path),
+        img_data = {'file_name': os.path.basename(img_path),
                     'height': img.size[1],
                     'width': img.size[0],
                     'id': media['id'],
-                    # media['created_at'
                     }
 
         image_annotations = []
