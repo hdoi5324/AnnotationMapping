@@ -348,20 +348,17 @@ def get_coco_cityscapes(root, image_set, transforms, is_source=True):
                     mode="instancesonly_filtered_gtFine", data_pre="gtFine_")
 
 
-def new_coco_dataset(category_map):
-    new_dataset = COCO()
-    new_dataset.dataset['info'] = {'description': 'BenthicMorphospecies',
-                                   'version': 0.1,
-                                   'year': 2023,
-                                   'contributor': 'Heather Doig'}
+def new_coco_dataset(category_name_list):
+    dataset = {}
+    dataset['info'] = {'description': 'BenthicMorphospecies', 'contributor': 'Heather Doig'}
     categories = []
-    for i, cat in enumerate(category_map):
+    for i, cat in enumerate(category_name_list):
         categories.append({'id': i + 1, 'name': cat})
-    new_dataset.dataset['info']['categories'] = categories
-    new_dataset.dataset['categories'] = categories
-    new_dataset.dataset['images'] = []
-    new_dataset.dataset['annotations'] = []
-    return new_dataset
+    dataset['info']['categories'] = categories
+    dataset['categories'] = categories
+    dataset['images'] = []
+    dataset['annotations'] = []
+    return dataset
 
 
 def get_dataset(dataset_desc, transform, data_path, is_source=True):

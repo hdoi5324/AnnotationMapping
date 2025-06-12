@@ -1,1 +1,4 @@
-/outputs/
+outputs
+source/outputs
+./outputs/*
+./source/outputs/*
