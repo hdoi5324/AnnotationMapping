@@ -1,3 +1,4 @@
+import json
 from collections import Counter, defaultdict
 
 from sqapi.request import query_filter as qf
@@ -5,17 +6,48 @@ from sqapi.request import Request
 from sqapi.annotate import Annotator
 from sqapi.media import SQMediaObject
 
+JSON_SEPS = (',', ':')
+
+
 class Delete(Request):
-    def __init__(self, endpoint, data=None, json_data=None, headers=None, **kwargs):
+    def __init__(self, endpoint, filters=None, data=None, json_data=None, headers=None, **kwargs):
         super().__init__(endpoint, "DELETE", data=data, json_data=json_data, headers=headers or {"Accept": "application/json"}, **kwargs)
+        self._filters = filters or []
+        self._q = dict()
+
+    def filter(self, name, op, val=None):
+        self._filters.append(qf(name, op, val=val))
+        return self
+
+    def filter_not(self, filt):
+        self._filters.append({"not": filt})
+        return self
+
+    def filters_or(self, filters):
+        self._filters.append({"or": filters})
+        return self
+
+    def filters_and(self, filters):
+        self._filters.append({"and": filters})
+        return self
+
+    def url(self, host):
+        if self._filters: self._q["filters"] = self._filters
+        if self._q:
+            self.qsparams["q"] = json.dumps(self._q, separators=JSON_SEPS)
+
+        return super().url(host)
 
 
 class SquidleConnection:
     def __init__(self, sqapi=None):
         self.sqapi = sqapi
 
-    def delete(self, endpoint, data=None, json_data=None, **kwargs) -> Delete:
-        return Delete(endpoint, sqapi=self.sqapi, data=data, json_data=json_data, **kwargs)
+    def delete(self, endpoint, poll_status_interval=None, *args, **kwargs) -> Delete:
+        result = Delete(endpoint, sqapi=self.sqapi, *args, poll_status_interval=poll_status_interval, **kwargs)
+        # result = self.poll_task_status(result, poll_status_interval=poll_status_interval)
+        return result
+
 
     def recursive_get(self, endpoint, filter_list, results_per_page=1000):
         """
@@ -29,7 +61,7 @@ class SquidleConnection:
         page = 1
         final_page = 10000
 
-        while page < final_page:
+        while page <= final_page:
             r = self.sqapi.get(endpoint, page=page, results_per_page=results_per_page)
             for f in filter_list:
                 r.filter(name=f["name"], op=f["op"], val=f.get("val", None))
@@ -378,8 +410,8 @@ class SquidleAnnotator(Annotator):
     
                 # Create and post point dictionary with annotation_set, media and label data.
                 p = self.create_annotation_label_point_px(annotation['label']['id'],
-                                                                  likelihood=likelihood, comment="Cloned",
-                                                                  row=x, col=y, width=width, height=height, polygon=None,
+                                                                  likelihood=likelihood, comment=f"Cloned from annotation_id {annotation['id']}",
+                                                                  row=y, col=x, width=width, height=height, polygon=None,
                                                                   t=point['t'])
                 p['annotation_set_id'] = annotation_set_id
                 p['media_id'] = mediaobj.id
@@ -400,3 +432,13 @@ class SquidleAnnotator(Annotator):
                 counts[k] += _counts[k]
 
         return counts
+    
+    
+    def create_annotation_label_point_xy(self, code, likelihood=0.0, tag_names=None, comment=None, needs_review=False,
+                                     y=None, x=None, t=None):
+        return {'x': x, 
+                'y': y, 
+                't': t, 
+                'annotation_label': self.create_annotation_label(
+            code=code, likelihood=likelihood, tag_names=tag_names, comment=comment, needs_review=needs_review
+        )}

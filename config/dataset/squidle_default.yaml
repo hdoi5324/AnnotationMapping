@@ -4,6 +4,6 @@ datatype: Squidle
 exclude_annotation_set_ids:
 needs_review_annotation_set_ids:
   -
-api_token: "09801311d37f480e11f57f1da2fd8b556bdb77d63a4c3de63c6b480d" # select user api token
-annotate_api_token: "09801311d37f480e11f57f1da2fd8b556bdb77d63a4c3de63c6b480d" # annotator(write) user api token
+api_token: "" # acfrbot
+annotate_api_token: "" # acfrbot
 url: "https://squidle.org/"

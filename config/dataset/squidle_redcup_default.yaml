@@ -18,9 +18,12 @@ squidle_mapping:
   #- 13288 # red cup bleached NOT USED
 
 needs_review_annotation_set_ids:
-  - 13249
+  - 13250
+  - 13251
 exclude_annotation_set_ids:
   - 13250
   - 13251
+  - 13249
+  - 17366
 
 
