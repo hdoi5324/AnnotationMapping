@@ -1,0 +1,25 @@
+defaults:
+  - squidle_default
+
+folder: squidle_urchin_loose_train
+test_split: 0 #
+
+ratio_non_annotated_images: 1
+inclusive: False
+annotation_set_ids: 
+  - 10690
+  - 13088
+coco_mapping:
+  - "Seaurchin"
+  - "Seaurchin"
+squidle_mapping:
+  - 13029 # sea urchin
+  - 534
+
+
+needs_review_annotation_set_ids:
+  -
+exclude_annotation_set_ids:
+  #- 13088 # East Tasmania, ClimateChangeAI
+  #- 10690 #urchin 2009
+  - 12479 # urchin 2011

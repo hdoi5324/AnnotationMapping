@@ -20,8 +20,7 @@ class SquidleData(SourceData):
         if self.opt.test_split is not None:
             self.test_split = self.opt.test_split
         self.sq_id_to_cat_id = {cat: i + 1 for i, cat in enumerate(opt.squidle_mapping)}
-        self.sqapi = SQAPI(api_key=self.opt.api_token, host=self.opt.url)
-        self.squidle_connection = SquidleConnection(sqapi=self.sqapi)
+        self.squidle_connection = SquidleConnection(api_key=self.opt.api_token, host=self.opt.url)
         self.subdir_paths = subdir_paths
 
         if image_dir is not None:  # if there's an image_dir get annotations/media for creating coco annotations
