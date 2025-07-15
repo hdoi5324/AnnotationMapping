@@ -39,12 +39,12 @@ class Delete(Request):
         return super().url(host)
 
 
-class SquidleConnection:
-    def __init__(self, sqapi=None):
-        self.sqapi = sqapi
+class SquidleConnection(SQAPI):
+    def __init__(self, **kw):
+        super().__init__(**kw)
 
     def delete(self, endpoint, poll_status_interval=None, *args, **kwargs) -> Delete:
-        result = Delete(endpoint, sqapi=self.sqapi, *args, poll_status_interval=poll_status_interval, **kwargs)
+        result = Delete(endpoint, sqapi=self, *args, poll_status_interval=poll_status_interval, **kwargs)
         # result = self.poll_task_status(result, poll_status_interval=poll_status_interval)
         return result
 
@@ -62,7 +62,7 @@ class SquidleConnection:
         final_page = 10000
 
         while page <= final_page:
-            r = self.sqapi.get(endpoint, page=page, results_per_page=results_per_page)
+            r = self.get(endpoint, page=page, results_per_page=results_per_page)
             for f in filter_list:
                 r.filter(name=f["name"], op=f["op"], val=f.get("val", None))
             response = r.execute().json()
@@ -83,7 +83,7 @@ class SquidleConnection:
         :param after_date:
         :return: dictionary from json response
         """
-        r = self.sqapi.get("/api/annotation_set")
+        r = self.get("/api/annotation_set")
 
         # Filter annotation sets based on ID
         if annotation_set_id:
@@ -99,14 +99,14 @@ class SquidleConnection:
 
         # Only return annotation_sets that do not already have suggestions from this user
         if filter_processed_annotation_sets:
-            r.filter_not(qf("children", "any", val=qf("user_id", "eq", self.sqapi.current_user.get("id"))))
+            r.filter_not(qf("children", "any", val=qf("user_id", "eq", self.current_user.get("id"))))
         return r.execute().json()
 
     def get_media_obj_for_media_ids(self, media_ids, results_per_page=100):
         media_objs = []
         start_idx = 0
         while start_idx < len(media_ids):
-            r = self.sqapi.get("/api/media", page=1, results_per_page=results_per_page)
+            r = self.get("/api/media", page=1, results_per_page=results_per_page)
             r.filter(name="id", op="in", val=media_ids[start_idx: min(start_idx + results_per_page, len(media_ids))])
             response = r.execute().json()
             media_objs += response['objects']
@@ -124,14 +124,14 @@ class SquidleConnection:
         media_objs = []
         page = 1
 
-        response = self.sqapi.get("/api/media", page=page, results_per_page=results_per_page).filter(
+        response = self.get("/api/media", page=page, results_per_page=results_per_page).filter(
             name="media_collections", op="any", val=dict(name="id", op="eq", val=media_collection_id)
         ).order_by(field="timestamp_start", direction="asc").execute().json()
         media_objs += response['objects']
         total_pages = response['total_pages']
         while page < total_pages:
             page += 1
-            response = self.sqapi.get("/api/media", page=page, results_per_page=results_per_page).filter(
+            response = self.get("/api/media", page=page, results_per_page=results_per_page).filter(
                 name="media_collections", op="any", val=dict(name="id", op="eq", val=media_collection_id)
             ).order_by(field="timestamp_start", direction="asc").execute().json()
             media_objs += response['objects']
@@ -140,7 +140,7 @@ class SquidleConnection:
     def get_media_ids_for_annotation_set_ids(self, annotation_set_ids):
         media_ids = []
         for id in annotation_set_ids:
-            result = self.sqapi.get(f"/api/annotation_set/{id}")
+            result = self.get(f"/api/annotation_set/{id}")
             media_collection_id = result.execute().json()
             media_collection_id = media_collection_id['media_collection']['id']
             results = self.get_media_ids_for_media_collection_id(media_collection_id)
@@ -163,7 +163,7 @@ class SquidleConnection:
         :param results_per_page: integer
         :return: dictionary response from json query
         """
-        request = self.sqapi.get("/api/annotation",
+        request = self.get("/api/annotation",
                                  page=page, results_per_page=results_per_page)
         if label_ids is not None:
             request.filter(name="label", op="has", val=dict(name="id", op="in", val=list(label_ids)))
@@ -217,7 +217,7 @@ class SquidleConnection:
         annotation_sets = annotation_set_count.keys()
         to_remove = []
         for a_id in annotation_sets:
-            parent_id = self.sqapi.get(f"/api/annotation_set/{a_id}").execute().json()['parent_id']
+            parent_id = self.get(f"/api/annotation_set/{a_id}").execute().json()['parent_id']
             if parent_id is not None:
                 to_remove.append(a_id)
         print(annotation_set_count)
@@ -235,7 +235,7 @@ class SquidleConnection:
         """
         results = []
         page = 1
-        request = self.sqapi.get("/api/media_collection_media",
+        request = self.get("/api/media_collection_media",
                                  page=page, results_per_page=results_per_page).filter(name="media_collection_id",
                                                                                       op="==", val=media_collection_id)
         media_ids = request.execute().json()
@@ -245,7 +245,7 @@ class SquidleConnection:
 
         while page < total_pages:
             page += 1
-            request = self.sqapi.get("/api/media_collection_media",
+            request = self.get("/api/media_collection_media",
                                      page=page, results_per_page=results_per_page).filter(name="media_collection_id",
                                                                                           op="==",
                                                                                           val=media_collection_id)
@@ -271,11 +271,11 @@ class SquidleAnnotator(Annotator):
         :return: media_collection_id integer
         """
         data = dict()
-        data["user_id"] = self.sqapi.current_user.get("id")
+        data["user_id"] = self.current_user.get("id")
         data['description'] = description or "New media collection."
         data['name'] = name or self.annotator_info
 
-        result = self.sqapi.post("/api/media_collection", json_data=data).execute().json()
+        result = self.post("/api/media_collection", json_data=data).execute().json()
         return result['id']
 
     def create_annotation_set(self, name, description, media_collection_id, label_scheme_id=7, group_id=None, is_full_bio_score=False, is_real_science=False):
@@ -287,7 +287,7 @@ class SquidleAnnotator(Annotator):
         :return: integer annotation_set_id
         """
         data = dict()
-        data["user_id"] = self.sqapi.current_user.get("id")
+        data["user_id"] = self.current_user.get("id")
         data['description'] = description or f"New annotation set for media collection {media_collection_id}."
         data['name'] = name or self.annotator_info
         data['label_scheme_id'] = label_scheme_id
@@ -295,14 +295,14 @@ class SquidleAnnotator(Annotator):
         data['is_full_bio_score'] = is_full_bio_score
         data['is_real_science'] = is_real_science
 
-        result = self.sqapi.post("/api/annotation_set", json_data=data).execute().json()
+        result = self.post("/api/annotation_set", json_data=data).execute().json()
         if group_id is not None:
-            _ = self.sqapi.post(f"/api/annotation_set/{result['id']}/group/{group_id}").execute().json()
+            _ = self.post(f"/api/annotation_set/{result['id']}/group/{group_id}").execute().json()
         return result['id']
 
     def add_media_to_collection(self, media_collection_id, media_id_list):
         # todo: make recursive or just select media_id
-        request = self.sqapi.get("/api/media",
+        request = self.get("/api/media",
                                          page=1, results_per_page=1000)
         request.filter(name="media_collection_media", op="any", val={'name': "media_collection_id", 'op': 'eq', 'val': media_collection_id})
         result = request.execute().json()
@@ -311,7 +311,7 @@ class SquidleAnnotator(Annotator):
         for media_id in media_id_list:
             if media_id not in media_ids:
                 count += 1
-                self.sqapi.post(f"/api/media_collection/{media_collection_id}/media/{media_id}").execute().json()
+                self.post(f"/api/media_collection/{media_collection_id}/media/{media_id}").execute().json()
         return f"Added {count} media items to media_collection {media_collection_id}"
 
     def add_annotations_to_annotation_set_old(self, annotation_set_id, media_collection_id, annotation_list,
@@ -321,7 +321,7 @@ class SquidleAnnotator(Annotator):
         if len(annotation_list) > 1000:
             print("fjfjfjfjfjfjfj THIS IS TOO MANY")
             return
-        request = self.sqapi.get("/api/media",
+        request = self.get("/api/media",
                                  page=1, results_per_page=16000)
         request.filter(name="media_collection_media", op="any",
                        val={'name': "media_collection_id", 'op': 'eq', 'val': media_collection_id})
@@ -359,7 +359,7 @@ class SquidleAnnotator(Annotator):
             p['media_id'] = mediaobj.id
             if isinstance(p.get('annotation_label'), dict):
                 p['annotation_label']['annotation_set_id'] = annotation_set_id
-            self.sqapi.post("/api/point", json_data=p).execute()
+            self.post("/api/point", json_data=p).execute()
 
         return None
 
@@ -376,7 +376,7 @@ class SquidleAnnotator(Annotator):
         self.code2label = {l: {'id': l} for l in label_set}
         
         # media_list =self.get_media_collection_media(media_collection_id, page=page, results_per_page=results_per_page)
-        media_list = self.sqapi.get("/api/media", page=page, results_per_page=results_per_page).filter(
+        media_list = self.get("/api/media", page=page, results_per_page=results_per_page).filter(
             name="media_collections", op="any", val=dict(name="id", op="eq", val=media_collection_id)
         ).order_by(field="timestamp_start", direction="asc").execute().json()
         num_results = media_list.get('num_results')
@@ -405,13 +405,17 @@ class SquidleAnnotator(Annotator):
                 point = annotation['point']
                 x = int(point.get('x') * width)
                 y = int(point.get('y') * height)
+                if 'polygon' in annotation['point']['data']:
+                    polygon_px = [[int((p[0]+x)*width), int((p[1]+y)*height)] for p in annotation['point']['data']['polygon']]
+                else:
+                    polygon_px = None
                 likelihood = annotation.get('likelihood', 1.0)
                 likelihood = 1.0 if likelihood is None else likelihood
     
                 # Create and post point dictionary with annotation_set, media and label data.
                 p = self.create_annotation_label_point_px(annotation['label']['id'],
                                                                   likelihood=likelihood, comment=f"Cloned from annotation_id {annotation['id']}",
-                                                                  row=y, col=x, width=width, height=height, polygon=None,
+                                                                  row=y, col=x, width=width, height=height, polygon=polygon_px,
                                                                   t=point['t'])
                 p['annotation_set_id'] = annotation_set_id
                 p['media_id'] = mediaobj.id
@@ -419,7 +423,7 @@ class SquidleAnnotator(Annotator):
                     p['annotation_label']['annotation_set_id'] = annotation_set_id
                     counts['new_annotations'] += 1
 
-                post = self.sqapi.post("/api/point", json_data=p)
+                post = self.post("/api/point", json_data=p)
                 result = post.execute()
                 result = result.json()
                 print(result)
