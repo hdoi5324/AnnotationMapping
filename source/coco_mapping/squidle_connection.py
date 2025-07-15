@@ -272,11 +272,11 @@ class SquidleAnnotator(Annotator):
         :return: media_collection_id integer
         """
         data = dict()
-        data["user_id"] = self.current_user.get("id")
+        data["user_id"] = self.sqapi.current_user.get("id")
         data['description'] = description or "New media collection."
         data['name'] = name or self.annotator_info
 
-        result = self.post("/api/media_collection", json_data=data).execute().json()
+        result = self.sqapi.post("/api/media_collection", json_data=data).execute().json()
         return result['id']
 
     def create_annotation_set(self, name, description, media_collection_id, label_scheme_id=7, group_id=None, is_full_bio_score=False, is_real_science=False):
@@ -288,7 +288,7 @@ class SquidleAnnotator(Annotator):
         :return: integer annotation_set_id
         """
         data = dict()
-        data["user_id"] = self.current_user.get("id")
+        data["user_id"] = self.sqapi.current_user.get("id")
         data['description'] = description or f"New annotation set for media collection {media_collection_id}."
         data['name'] = name or self.annotator_info
         data['label_scheme_id'] = label_scheme_id
@@ -296,14 +296,14 @@ class SquidleAnnotator(Annotator):
         data['is_full_bio_score'] = is_full_bio_score
         data['is_real_science'] = is_real_science
 
-        result = self.post("/api/annotation_set", json_data=data).execute().json()
+        result = self.sqapi.post("/api/annotation_set", json_data=data).execute().json()
         if group_id is not None:
-            _ = self.post(f"/api/annotation_set/{result['id']}/group/{group_id}").execute().json()
+            _ = self.sqapi.post(f"/api/annotation_set/{result['id']}/group/{group_id}").execute().json()
         return result['id']
 
     def add_media_to_collection(self, media_collection_id, media_id_list):
         # todo: make recursive or just select media_id
-        request = self.get("/api/media",
+        request = self.sqapi.get("/api/media",
                                          page=1, results_per_page=1000)
         request.filter(name="media_collection_media", op="any", val={'name': "media_collection_id", 'op': 'eq', 'val': media_collection_id})
         result = request.execute().json()
@@ -312,7 +312,7 @@ class SquidleAnnotator(Annotator):
         for media_id in media_id_list:
             if media_id not in media_ids:
                 count += 1
-                self.post(f"/api/media_collection/{media_collection_id}/media/{media_id}").execute().json()
+                self.sqapi.post(f"/api/media_collection/{media_collection_id}/media/{media_id}").execute().json()
         return f"Added {count} media items to media_collection {media_collection_id}"
 
     def add_annotations_to_annotation_set_old(self, annotation_set_id, media_collection_id, annotation_list,
@@ -322,7 +322,7 @@ class SquidleAnnotator(Annotator):
         if len(annotation_list) > 1000:
             print("fjfjfjfjfjfjfj THIS IS TOO MANY")
             return
-        request = self.get("/api/media",
+        request = self.sqapi.get("/api/media",
                                  page=1, results_per_page=16000)
         request.filter(name="media_collection_media", op="any",
                        val={'name': "media_collection_id", 'op': 'eq', 'val': media_collection_id})
@@ -360,7 +360,7 @@ class SquidleAnnotator(Annotator):
             p['media_id'] = mediaobj.id
             if isinstance(p.get('annotation_label'), dict):
                 p['annotation_label']['annotation_set_id'] = annotation_set_id
-            self.post("/api/point", json_data=p).execute()
+            self.sqapi.post("/api/point", json_data=p).execute()
 
         return None
 
@@ -377,7 +377,7 @@ class SquidleAnnotator(Annotator):
         self.code2label = {l: {'id': l} for l in label_set}
         
         # media_list =self.get_media_collection_media(media_collection_id, page=page, results_per_page=results_per_page)
-        media_list = self.get("/api/media", page=page, results_per_page=results_per_page).filter(
+        media_list = self.sqapi.get("/api/media", page=page, results_per_page=results_per_page).filter(
             name="media_collections", op="any", val=dict(name="id", op="eq", val=media_collection_id)
         ).order_by(field="timestamp_start", direction="asc").execute().json()
         num_results = media_list.get('num_results')
@@ -424,7 +424,7 @@ class SquidleAnnotator(Annotator):
                     p['annotation_label']['annotation_set_id'] = annotation_set_id
                     counts['new_annotations'] += 1
 
-                post = self.post("/api/point", json_data=p)
+                post = self.sqapi.post("/api/point", json_data=p)
                 result = post.execute()
                 result = result.json()
                 print(result)
