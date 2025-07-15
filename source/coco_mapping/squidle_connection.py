@@ -5,6 +5,7 @@ from sqapi.request import query_filter as qf
 from sqapi.request import Request
 from sqapi.annotate import Annotator
 from sqapi.media import SQMediaObject
+from sqapi.api import SQAPI
 
 JSON_SEPS = (',', ':')
 
