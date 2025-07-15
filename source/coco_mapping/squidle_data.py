@@ -7,7 +7,6 @@ import numpy as np
 from PIL import Image
 from sklearn.model_selection import train_test_split
 from .datasets import SourceData
-from sqapi.api import SQAPI
 from sqapi.media import SQMediaObject
 
 from .squidle_connection import SquidleConnection
