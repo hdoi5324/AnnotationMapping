@@ -8,8 +8,10 @@ ratio_non_annotated_images: 1
 inclusive: True
 annotation_set_ids:
   #- 17477
-  - 13088 # East Tasmania, ClimateChangeAI
-  - 10690 #urchin 2009
+  #- 13088 # East Tasmania, ClimateChangeAI
+  #- 10690 #urchin 2009
+  - 17630 # point training
+
   #- 12479 # urchin 2011
 coco_mapping:
   - "Seaurchin"

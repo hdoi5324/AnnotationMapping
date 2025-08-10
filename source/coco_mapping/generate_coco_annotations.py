@@ -10,7 +10,7 @@ from coco_mapping.utils_coco import new_coco_dataset
 
 
 def generate_coco_annotations(dataset, annotation_path, coco_mapping_list):
-    image_id, ann_id = 0, 0
+    image_id, ann_id = 1, 1
 
     # Process train then test split of images
     for split, split_list in dataset.split_dict.items():
@@ -22,6 +22,7 @@ def generate_coco_annotations(dataset, annotation_path, coco_mapping_list):
         for i in tqdm(range(len(split_list))):
             # Get image data
             img_data, image_annotations, img_path = dataset.get_image_data(split, i)
+            img_data['id'] = img_data['id'] if isinstance(img_data['id'], int) else image_id
             image_list.append(img_data)
 
             # Create coco annotations (and text file)
