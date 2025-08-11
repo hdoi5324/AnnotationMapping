@@ -9,16 +9,26 @@ from tqdm import tqdm
 from coco_mapping.utils_coco import new_coco_dataset
 
 
-def generate_coco_annotations(dataset, annotation_path, coco_mapping_list):
-    image_id, ann_id = 1, 1
+def generate_coco_annotations(dataset, annotation_path, coco_mapping_list, append_to_file:False):
 
     # Process train then test split of images
     for split, split_list in dataset.split_dict.items():
     #for split in ['train', 'test']:
-        coco_dataset = new_coco_dataset(coco_mapping_list)
-        image_list, ann_list = list(), list()
+        dataset_file = os.path.join(annotation_path,
+                                    f"instances_{split}.json")
+        if append_to_file:
+            with open(dataset_file, 'r') as f:
+                coco_dataset = json.load(f)
+            image_list = dataset.get('images', [])
+            ann_list = dataset.get('annotations', [])
+            image_id = image_list[-1]['id'] + 1
+            ann_id = ann_list[-1]['id'] + 1
+        else:
+            coco_dataset = new_coco_dataset(coco_mapping_list)
+            image_list, ann_list = list(), list()
+            image_id, ann_id = 1, 1
 
-        # Process image list
+    # Process image list
         for i in tqdm(range(len(split_list))):
             # Get image data
             img_data, image_annotations, img_path = dataset.get_image_data(split, i)
@@ -88,7 +98,5 @@ def generate_coco_annotations(dataset, annotation_path, coco_mapping_list):
         coco_dataset['annotations'] = ann_list
 
         # Save dataset
-        dataset_file = os.path.join(annotation_path,
-                                    f"instances_{split}.json")
         with open(dataset_file, "w") as fp:
             json.dump(coco_dataset, fp)
