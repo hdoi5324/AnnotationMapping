@@ -10,10 +10,8 @@ from coco_mapping.utils_coco import new_coco_dataset
 
 
 def generate_coco_annotations(dataset, annotation_path, coco_mapping_list):
-
-    # Process train then test split of images
+    # Process each split of images eg train, test
     for split, split_list in dataset.split_dict.items():
-    #for split in ['train', 'test']:
         dataset_file = os.path.join(annotation_path,
                                     f"instances_{split}.json")
         if os.path.exists(dataset_file):
@@ -28,7 +26,7 @@ def generate_coco_annotations(dataset, annotation_path, coco_mapping_list):
             image_list, ann_list = list(), list()
             image_id, ann_id = 1, 1
 
-    # Process image list
+        # Process image list
         for i in tqdm(range(len(split_list))):
             # Get image data
             img_data, image_annotations, img_path = dataset.get_image_data(split, i)
@@ -87,13 +85,11 @@ def generate_coco_annotations(dataset, annotation_path, coco_mapping_list):
                         x = int(coords[0])
                         y = int(coords[1])
                         image = cv2.circle(image, (x, y), 8, colour, 16)
-                    if 'polygon' in a:
+                    if 'polygon' in a and len(a['polygon']) > 4:
                         image = cv2.drawContours(image, [np.array(a['polygon'])], 0, (255, 255, 255), 1)
                 cv2.imwrite(output_name, image)
-
             image_id += 1
 
-        # Add to dataset
         coco_dataset['images'] = image_list
         coco_dataset['annotations'] = ann_list
 
