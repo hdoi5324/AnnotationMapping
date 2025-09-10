@@ -321,55 +321,6 @@ class SquidleAnnotator(Annotator):
                 self.sqapi.post(f"/api/media_collection/{media_collection_id}/media/{media_id}").execute().json()
         return f"Added {count} media items to media_collection {media_collection_id}"
 
-    def add_annotations_to_annotation_set_old(self, annotation_set_id, media_collection_id, annotation_list,
-                                          label_scheme_id=7):
-        # Get media into dictionary by media_id.  Needed for media_obj
-        # todo: make this recursive
-        if len(annotation_list) > 1000:
-            print("fjfjfjfjfjfjfj THIS IS TOO MANY")
-            return
-        request = self.sqapi.get("/api/media",
-                                 page=1, results_per_page=16000)
-        request.filter(name="media_collection_media", op="any",
-                       val={'name': "media_collection_id", 'op': 'eq', 'val': media_collection_id})
-        media_data = request.execute().json()['objects']
-        media_lookup = {m['id']: m for m in media_data}
-
-        # Create a simple code lookup based on annotation labels.
-        # todo: make this robust to different label schemes
-        label_set = list(
-            set([a['label']['id'] for a in annotation_list]))
-        self.code2label = {l: {'id': l} for l in label_set}
-
-        for annotation in annotation_list:
-            # Get the point and media_obj from the annotation
-            point = annotation['point']
-            m = media_lookup[point['media_id']]
-            media_url = m.get('path_best')
-            media_type = m.get("media_type", {}).get("name")
-            mediaobj = SQMediaObject(media_url, media_type=media_type, media_id=m.get('id'))
-            if not mediaobj.is_processed:
-                orig_image = mediaobj.data()
-            width = mediaobj.width
-            height = mediaobj.height
-            x = int(point.get('x') * width)
-            y = int(point.get('y') * height)
-            likelihood = annotation.get('likelihood', 1.0)
-            likelihood = 1.0 if likelihood is None else likelihood
-
-            # Create and post point dictionary with annotation_set, media and label data.
-            p = self.create_annotation_label_point_px(annotation['label']['id'],
-                                                              likelihood=likelihood, comment="Cloned",
-                                                              row=x, col=y, width=width, height=height, polygon=None,
-                                                              t=point['t'])
-            p['annotation_set_id'] = annotation_set_id
-            p['media_id'] = mediaobj.id
-            if isinstance(p.get('annotation_label'), dict):
-                p['annotation_label']['annotation_set_id'] = annotation_set_id
-            self.sqapi.post("/api/point", json_data=p).execute()
-
-        return None
-
     def add_annotations_to_annotation_set(self, annotation_set_id, media_collection_id, annotation_list, page=1, results_per_page=500):
         """
         :param annotation_set_id:
