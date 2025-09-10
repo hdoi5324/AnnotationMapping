@@ -3,9 +3,9 @@ from collections import Counter, defaultdict
 
 from sqapi.request import query_filter as qf
 from sqapi.request import Request
+from sqapi.api import SQAPI, DEFAULT_HOST
 from sqapi.annotate import Annotator
 from sqapi.media import SQMediaObject
-from sqapi.api import SQAPI
 
 JSON_SEPS = (',', ':')
 
@@ -261,8 +261,9 @@ class SquidleAnnotator(Annotator):
     Class to do any creating or deleting in squidle. Leverages methods in parent class.
     """
 
-    def __init__(self, **kw):
-        super().__init__(**kw)
+    def __init__(self, host: str = DEFAULT_HOST, api_key: str = None, verbosity: int = 2, **kw):
+        super().__init__(host=host, api_key=api_key, verbosity=verbosity, **kw)
+        self.my_sqapi = SquidleConnection(host=host, api_key=api_key, verbosity=verbosity)
 
     def create_media_collection(self, name, description):
         """
@@ -279,7 +280,8 @@ class SquidleAnnotator(Annotator):
         result = self.sqapi.post("/api/media_collection", json_data=data).execute().json()
         return result['id']
 
-    def create_annotation_set(self, name, description, media_collection_id, label_scheme_id=7, group_id=None, is_full_bio_score=False, is_real_science=False):
+    def create_annotation_set(self, name, description, media_collection_id, label_scheme_id=7, group_id=None, 
+                              is_qaqc=False, is_final=False, is_examplar=False, is_full_bio_score=False, is_real_science=False):
         """
         :param name: str annotation set name
         :param description: str
@@ -295,6 +297,10 @@ class SquidleAnnotator(Annotator):
         data['media_collection_id'] = media_collection_id
         data['is_full_bio_score'] = is_full_bio_score
         data['is_real_science'] = is_real_science
+        data['is_examplar'] = is_examplar
+        data['is_qaqc'] = is_qaqc
+        data['is_final'] = is_final
+        #data['data'] = {'allow_add': True, 'allow_wholeframe': False, 'labels_per_frame': 1, 'labels_per_point': 1, 'params': {'margin_bottom': 0, 'margin_left': 0, 'margin_right': 0, 'margin_top': 0}, 'type': 'pointclick'}
 
         result = self.sqapi.post("/api/annotation_set", json_data=data).execute().json()
         if group_id is not None:
@@ -314,55 +320,6 @@ class SquidleAnnotator(Annotator):
                 count += 1
                 self.sqapi.post(f"/api/media_collection/{media_collection_id}/media/{media_id}").execute().json()
         return f"Added {count} media items to media_collection {media_collection_id}"
-
-    def add_annotations_to_annotation_set_old(self, annotation_set_id, media_collection_id, annotation_list,
-                                          label_scheme_id=7):
-        # Get media into dictionary by media_id.  Needed for media_obj
-        # todo: make this recursive
-        if len(annotation_list) > 1000:
-            print("fjfjfjfjfjfjfj THIS IS TOO MANY")
-            return
-        request = self.sqapi.get("/api/media",
-                                 page=1, results_per_page=16000)
-        request.filter(name="media_collection_media", op="any",
-                       val={'name': "media_collection_id", 'op': 'eq', 'val': media_collection_id})
-        media_data = request.execute().json()['objects']
-        media_lookup = {m['id']: m for m in media_data}
-
-        # Create a simple code lookup based on annotation labels.
-        # todo: make this robust to different label schemes
-        label_set = list(
-            set([a['label']['id'] for a in annotation_list]))
-        self.code2label = {l: {'id': l} for l in label_set}
-
-        for annotation in annotation_list:
-            # Get the point and media_obj from the annotation
-            point = annotation['point']
-            m = media_lookup[point['media_id']]
-            media_url = m.get('path_best')
-            media_type = m.get("media_type", {}).get("name")
-            mediaobj = SQMediaObject(media_url, media_type=media_type, media_id=m.get('id'))
-            if not mediaobj.is_processed:
-                orig_image = mediaobj.data()
-            width = mediaobj.width
-            height = mediaobj.height
-            x = int(point.get('x') * width)
-            y = int(point.get('y') * height)
-            likelihood = annotation.get('likelihood', 1.0)
-            likelihood = 1.0 if likelihood is None else likelihood
-
-            # Create and post point dictionary with annotation_set, media and label data.
-            p = self.create_annotation_label_point_px(annotation['label']['id'],
-                                                              likelihood=likelihood, comment="Cloned",
-                                                              row=x, col=y, width=width, height=height, polygon=None,
-                                                              t=point['t'])
-            p['annotation_set_id'] = annotation_set_id
-            p['media_id'] = mediaobj.id
-            if isinstance(p.get('annotation_label'), dict):
-                p['annotation_label']['annotation_set_id'] = annotation_set_id
-            self.sqapi.post("/api/point", json_data=p).execute()
-
-        return None
 
     def add_annotations_to_annotation_set(self, annotation_set_id, media_collection_id, annotation_list, page=1, results_per_page=500):
         """
@@ -407,7 +364,7 @@ class SquidleAnnotator(Annotator):
                 x = int(point.get('x') * width)
                 y = int(point.get('y') * height)
                 if 'polygon' in annotation['point']['data']:
-                    polygon_px = [[int((p[0]+x)*width), int((p[1]+y)*height)] for p in annotation['point']['data']['polygon']]
+                    polygon_px = [[int((p[0])*width)+x, int((p[1])*height)+y] for p in annotation['point']['data']['polygon']]
                 else:
                     polygon_px = None
                 likelihood = annotation.get('likelihood', 1.0)
@@ -424,10 +381,17 @@ class SquidleAnnotator(Annotator):
                     p['annotation_label']['annotation_set_id'] = annotation_set_id
                     counts['new_annotations'] += 1
 
-                post = self.sqapi.post("/api/point", json_data=p)
-                result = post.execute()
-                result = result.json()
-                print(result)
+                result = self.sqapi.post("/api/point", json_data=p).execute().json()
+                print(f"Point added: {result['id']}")
+                
+                ## HACK to delete additional annotation that is created with blank label.
+                for a in result['annotations']:
+                    if a['label_id'] is None:
+                        print(f"Deleting annotation with blank label - /api/annotation/{a['id']} Details {a}")
+                        result = self.my_sqapi.delete(f"/api/annotation/{a['id']}").execute()
+                        print(result)
+                ## END HACK 
+                
                 counts['new_points'] += 1
 
         # continue until all images are processed

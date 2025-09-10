@@ -13,9 +13,10 @@ from .squidle_connection import SquidleConnection
 from .utils_squidle import get_image_name
 
 class SquidleData(SourceData):
-    def __init__(self, opt, image_dir=None, subdir_paths=None):
+    def __init__(self, opt, image_dir=None, subdir_paths=None, buffer=0.05):
         super(SquidleData, self).__init__()
         self.opt = opt
+        self.buffer = buffer
         if self.opt.test_split is not None:
             self.test_split = self.opt.test_split
         self.sq_id_to_cat_id = {cat: i + 1 for i, cat in enumerate(opt.squidle_mapping)}
@@ -208,7 +209,8 @@ class SquidleData(SourceData):
                                                    point['y'],
                                                    point['data']['polygon'],
                                                    img.size[0],
-                                                   img.size[1])
+                                                   img.size[1],
+                                                   buffer=self.buffer)
                     polygon_in_px = [[int((p[0] + point['x']) * img.size[0]), int((p[1] + point['y']) * img.size[1])]
                                      for p in point['data']['polygon']]
                     ann_data['polygon'] = polygon_in_px

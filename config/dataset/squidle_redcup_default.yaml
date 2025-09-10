@@ -1,29 +1,30 @@
 defaults:
   - squidle_default
 
-folder: squidle_redcup_train
-test_split: 0.0 # 
+folder: squidle_redcup_full_train
+test_split: 1.0 #
 
 ratio_non_annotated_images: 1
 inclusive: True
 annotation_set_ids: 
-  - 
+  - 17549 # train
+  #- 17366
 coco_mapping:
-  - " Gorgonian Red"
-  #- "Red Cup Smooth"
+  #- " Gorgonian Red"
+  - "Red Cup Smooth"
   #- "Red Cup Smooth - Bleached"
+  #- "Arborescent Orange"
 squidle_mapping:
-  - 7158 # gorgonian red pteronisis like
-  #- 7111 # red cup smooth
+  #- 7158 # gorgonian red pteronisis like
+  - 7111 # red cup smooth
   #- 13288 # red cup bleached NOT USED
+  #- 17891
+  #- 13029 # spiny urchin
 
 needs_review_annotation_set_ids:
-  - 13250
-  - 13251
-exclude_annotation_set_ids:
-  - 13250
-  - 13251
-  - 13249
-  - 17366
 
+exclude_annotation_set_ids:
+
+
+  
 

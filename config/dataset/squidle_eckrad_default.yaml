@@ -1,0 +1,20 @@
+defaults:
+  - squidle_default
+folder: squidle_ecklonia_test
+test_split: 1.0 #
+ratio_non_annotated_images: 1
+inclusive: False
+annotation_set_ids: 
+  - 17550 # train
+coco_mapping:
+  - "Ecklonia radiata"
+squidle_mapping:
+  - 7326 # red cup smooth
+needs_review_annotation_set_ids:
+  - 7777
+exclude_annotation_set_ids:
+  - 7777
+
+
+  
+

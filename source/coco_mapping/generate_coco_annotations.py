@@ -10,18 +10,27 @@ from coco_mapping.utils_coco import new_coco_dataset
 
 
 def generate_coco_annotations(dataset, annotation_path, coco_mapping_list):
-    image_id, ann_id = 0, 0
-
-    # Process train then test split of images
+    # Process each split of images eg train, test
     for split, split_list in dataset.split_dict.items():
-    #for split in ['train', 'test']:
-        coco_dataset = new_coco_dataset(coco_mapping_list)
-        image_list, ann_list = list(), list()
+        dataset_file = os.path.join(annotation_path,
+                                    f"instances_{split}.json")
+        if os.path.exists(dataset_file):
+            with open(dataset_file, 'r') as f:
+                coco_dataset = json.load(f)
+            image_list = coco_dataset.get('images', [])
+            ann_list = coco_dataset.get('annotations', [])
+            image_id = image_list[-1]['id'] + 1
+            ann_id = ann_list[-1]['id'] + 1
+        else:
+            coco_dataset = new_coco_dataset(coco_mapping_list)
+            image_list, ann_list = list(), list()
+            image_id, ann_id = 1, 1
 
         # Process image list
         for i in tqdm(range(len(split_list))):
             # Get image data
             img_data, image_annotations, img_path = dataset.get_image_data(split, i)
+            img_data['id'] = img_data['id'] if isinstance(img_data['id'], int) else image_id
             image_list.append(img_data)
 
             # Create coco annotations (and text file)
@@ -76,18 +85,14 @@ def generate_coco_annotations(dataset, annotation_path, coco_mapping_list):
                         x = int(coords[0])
                         y = int(coords[1])
                         image = cv2.circle(image, (x, y), 8, colour, 16)
-                    if 'polygon' in a:
+                    if 'polygon' in a and len(a['polygon']) > 4:
                         image = cv2.drawContours(image, [np.array(a['polygon'])], 0, (255, 255, 255), 1)
                 cv2.imwrite(output_name, image)
-
             image_id += 1
 
-        # Add to dataset
         coco_dataset['images'] = image_list
         coco_dataset['annotations'] = ann_list
 
         # Save dataset
-        dataset_file = os.path.join(annotation_path,
-                                    f"instances_{split}.json")
         with open(dataset_file, "w") as fp:
             json.dump(coco_dataset, fp)
