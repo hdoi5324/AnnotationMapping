@@ -77,7 +77,7 @@ def generate_coco_annotations(dataset, annotation_path, coco_mapping_list):
                         x = int(coords[0])
                         y = int(coords[1])
                         image = cv2.circle(image, (x, y), 8, colour, 16)
-                    if 'polygon' in a:
+                    if 'polygon' in a and len(a['polygon']) != 4: # Draw polygons that are not bbounding boxes
                         image = cv2.drawContours(image, [np.array(a['polygon'])], 0, (255, 255, 255), 1)
                 cv2.imwrite(output_name, image)
 

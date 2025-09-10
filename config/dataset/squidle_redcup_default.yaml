@@ -7,8 +7,8 @@ test_split: 1.0 #
 ratio_non_annotated_images: 1
 inclusive: True
 annotation_set_ids: 
-  #- 17549 # train
-  - 17366
+  - 17549 # train
+  #- 17366
 coco_mapping:
   #- " Gorgonian Red"
   - "Red Cup Smooth"
@@ -24,8 +24,6 @@ squidle_mapping:
 needs_review_annotation_set_ids:
 
 exclude_annotation_set_ids:
-  - 17549
-  -
 
 
   
