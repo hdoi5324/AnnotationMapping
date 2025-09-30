@@ -130,7 +130,6 @@ class InfinigenData(SourceData):
                     coord[3] = min(coord[3] + 2 * y_buffer, img.shape[1])
 
                     ann_data = {'category': c + 1,
-                                'semi': False,
                                 'bbox': coord,
                                 'source': "infinigen"
                                 }

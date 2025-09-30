@@ -1,0 +1,15 @@
+defaults:
+  - squidle_default
+folder: squidle_yellowball_train
+test_split: 0.0 #
+ratio_non_annotated_images: 1
+inclusive: True
+annotation_set_ids: 
+  - 17830 # train
+  #- 17366
+coco_mapping:
+  - "Yellow Ball"
+squidle_mapping:
+  - 6947 # Ball Yellow Papillate Irregular
+needs_review_annotation_set_ids:
+exclude_annotation_set_ids:

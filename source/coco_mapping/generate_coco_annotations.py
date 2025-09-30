@@ -42,8 +42,7 @@ def generate_coco_annotations(dataset, annotation_path, coco_mapping_list):
                               'id': ann_id,
                               'iscrowd': 0,
                               'ignore': 0,
-                              'segmentation': [],
-                              'semi': a.get('semi', False)}
+                              'segmentation': []}
                 if 'bbox' in a:
                     file_line = f"{a['category']}, {int(a['bbox'][0])}, {int(a['bbox'][1])}, {int(a['bbox'][2])}, {int(a['bbox'][3])}\n"
                     text_data.append(file_line)
@@ -70,8 +69,7 @@ def generate_coco_annotations(dataset, annotation_path, coco_mapping_list):
                 colours = [(int(255 * c[0]), int(255 * c[1]), int(255 * c[2])) for c in mpl.colormaps['tab10'].colors]
                 for a in image_annotations:
                     cat = a['category']
-                    semi = a.get('semi', False)
-                    colour = colours[cat % len(colours)] if not semi else colours[-1]
+                    colour = colours[cat % len(colours)]
                     if 'bbox' in a:
                         coords = a['bbox']
                         [x, y, width, height] = coords
