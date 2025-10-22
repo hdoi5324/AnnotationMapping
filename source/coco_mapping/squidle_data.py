@@ -220,7 +220,7 @@ class SquidleData(SourceData):
                                                               img.size[0],
                                                               img.size[1])
                 ann_data['bbox'] = bbox
-                ann_data['point'] = point
+                ann_data['point'] = [int(point['x']*img.size[0]), int(point['y']*img.size[1])]
                 if bbox is not None:
                     image_annotations.append(ann_data)
 
