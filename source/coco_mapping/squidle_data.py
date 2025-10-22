@@ -13,7 +13,7 @@ from .squidle_connection import SquidleConnection
 from .utils_squidle import get_image_name
 
 class SquidleData(SourceData):
-    def __init__(self, opt, image_dir=None, subdir_paths=None, buffer=0.05):
+    def __init__(self, opt, image_dir=None, subdir_paths=None, buffer=0.0):
         super(SquidleData, self).__init__()
         self.opt = opt
         self.buffer = buffer
@@ -125,7 +125,7 @@ class SquidleData(SourceData):
 
         return media_count
 
-    def save_media_list_data(self, media_list, semi=False):
+    def save_media_list_data(self, media_list):
         " Not used at the moment."
         media_count = 0
         for m_obj in media_list:  # Iterate through each image
@@ -197,9 +197,7 @@ class SquidleData(SourceData):
                 category = self.sq_id_to_cat_id.get(a['label']['id'], 0)
                 point = a['point']
                 polygon_ann = len(point['data'].get('polygon', [])) >= 3
-                semi = a.get('semi', False)
                 ann_data = {'category': category,
-                            'semi': semi,
                             'source': 'squidle'
                             }
                 # Bbox annotation
@@ -222,6 +220,7 @@ class SquidleData(SourceData):
                                                               img.size[0],
                                                               img.size[1])
                 ann_data['bbox'] = bbox
+                ann_data['point'] = [int(point['x']*img.size[0]), int(point['y']*img.size[1])]
                 if bbox is not None:
                     image_annotations.append(ann_data)
 

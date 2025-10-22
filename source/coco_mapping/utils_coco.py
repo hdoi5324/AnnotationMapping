@@ -85,8 +85,6 @@ class ConvertCocoPolysToMask:
             a["iscrowd"] = a.get("iscrowd", 0)
             a["polygon"] = a.get("polygon", [])
         anno = [obj for obj in anno if obj["iscrowd"] == 0]
-        semi = [obj.get("semi", False) for obj in anno]
-        semi = torch.tensor(semi, dtype=bool)
 
         boxes = anno[0].get("bbox", None) if len(anno) > 0 else None
         if boxes is not None:
@@ -127,7 +125,6 @@ class ConvertCocoPolysToMask:
                 keypoints = keypoints[keep]
 
         target = {}
-        target["semi"] = semi
         if boxes is not None:
             target["boxes"] = boxes
         if points is not None:
@@ -258,7 +255,7 @@ def get_coco_api_from_dataset(dataset):
     return dataset
 
 
-def coco_remove_annotations(coco_dataset, keep_bbox=True, remove_semi=False, remove_all_annotations=False):
+def coco_remove_annotations(coco_dataset, keep_bbox=True, remove_all_annotations=False):
     json_dataset = coco_dataset.dataset.copy()
     if remove_all_annotations:
         json_dataset['annotations'] = []
@@ -266,9 +263,7 @@ def coco_remove_annotations(coco_dataset, keep_bbox=True, remove_semi=False, rem
         updated_ann = []
         for a in json_dataset["annotations"]:
             if keep_bbox and 'bbox' in a:
-                # Want to add this annotation but check if it's a semi-supervised
-                if not (remove_semi and a.get('semi', False)):  # Check if it's semi-supervised
-                    updated_ann.append(a)
+                updated_ann.append(a)
         json_dataset['annotations'] = updated_ann
     from pycocotools.coco import COCO
     coco_dataset = COCO()

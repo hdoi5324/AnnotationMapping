@@ -1,0 +1,18 @@
+defaults:
+  - squidle_default
+folder: squidle_ob_sparse_point_train
+test_split: 0.0 #
+ratio_non_annotated_images: 1
+inclusive: True
+annotation_set_ids: 
+  - 17863 # train
+coco_mapping:
+  - "Ophiomyxa bengalensis"
+squidle_mapping:
+  - 15005 # 15005
+needs_review_annotation_set_ids:
+exclude_annotation_set_ids:
+
+
+  
+

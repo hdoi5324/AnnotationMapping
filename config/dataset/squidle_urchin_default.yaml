@@ -21,12 +21,5 @@ squidle_mapping:
   #- 534
 needs_review_annotation_set_ids:
 exclude_annotation_set_ids:
-  - 17549
-  - 17550
-  - 13251
-  - 13250
-  - 13249
-  - 17538
-  - 17542
-  - 17543
+
 
