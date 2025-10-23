@@ -11,6 +11,7 @@ coco_mapping:
 squidle_mapping:
   - 15005 # 15005
 needs_review_annotation_set_ids:
+  - 17863 # train
 exclude_annotation_set_ids:
 
 
