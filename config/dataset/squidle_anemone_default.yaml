@@ -1,17 +1,21 @@
 defaults:
   - squidle_default
-folder: squidle_ob_sparse_point_train
+folder: squidle_anemone_sparse_point_train
 test_split: 0.0 #
 ratio_non_annotated_images: 1
 inclusive: True
 annotation_set_ids: 
-  - 17863 # train
+  #- 18050 # test
+  #- 18065 # test exhaustive
+  - 18051 # train
 coco_mapping:
-  - "Ophiomyxa bengalensis"
+  - "True anemones"
 squidle_mapping:
-  - 15005 # 15005
+  - 501 # 15005
 needs_review_annotation_set_ids:
-  - 17863 # train
+  #- 18050 # test
+  #- 18065 # test exhaustive
+  - 18051 # train
 exclude_annotation_set_ids:
 
 
