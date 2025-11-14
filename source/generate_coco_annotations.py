@@ -3,6 +3,7 @@ import os
 import hydra
 from omegaconf import DictConfig
 
+from coco_mapping.utils_coco import new_coco_dataset
 from coco_mapping.generate_coco_annotations import generate_coco_annotations
 from utils.set_random_seed import set_random_seed
 
