@@ -12,7 +12,12 @@ from PIL import ImageFile
 from pycocotools import mask as coco_mask
 from pycocotools.coco import COCO
 
+import os.path
 
+try:
+    from detectron2.evaluation.fast_eval_api import COCOeval_opt as COCOeval
+except ImportError:
+    from pycocotools.cocoeval import COCOeval
 
 
 class FilterAndRemapCocoCategories:
@@ -367,3 +372,45 @@ def get_dataset(dataset_desc, transform, data_path, is_source=True):
 
     ds = ds_fn(p, image_set=image_set, is_source=is_source, transforms=transform)
     return ds
+
+def evaluate_coco_file(dt_file, gt_file, results_file=False):
+    if not os.path.exists(dt_file):
+        print(f"ERROR: {dt_file} does not exist")
+        return None
+    coco_gt = COCO(gt_file)
+
+    if results_file:
+        coco_dt_res_file = dt_file
+    else:
+        coco_dt = COCO(dt_file)
+        # update image_id on coco_dt annotatios to match coco_gt image_id through file_name (same in both).
+        remapped_coco_dt = []
+        gt_file_name_to_id = {image_data['file_name']: image_data['id'] for image_data in coco_gt.dataset['images']}
+        for result in coco_dt.dataset['annotations']:
+            file_name = coco_dt.imgs[result['image_id']]['file_name']
+            file_name = file_name.replace('_erased', '')
+            gt_image_id = gt_file_name_to_id.get(file_name)
+            if gt_image_id is not None:
+                r = {'image_id': gt_image_id,
+                     'score': 1.0,
+                     'category_id': result['category_id'],
+                     'bbox': result['bbox']}
+                remapped_coco_dt.append(r)
+    
+        # Save CLIP bbox in list of annotations with image_ids aligned with gt
+        coco_dt_dir = os.path.dirname(dt_file)
+        coco_dt_res_file = os.path.join(coco_dt_dir, "coco_instances_results.json")
+        with open(coco_dt_res_file, "w") as fp:
+            json.dump(remapped_coco_dt, fp)
+
+    # Run evaluation
+    coco_dt = coco_gt.loadRes(coco_dt_res_file)
+    if len(coco_gt.dataset['annotations']) != len(coco_dt.dataset['annotations']):
+        print(f"ERROR: gt ann {len(coco_gt.dataset['annotations'])} does not match {len(coco_dt.dataset['annotations'])}")
+    #    print(
+    #        f"ERROR: Not equal: GT annotations {len(coco_gt.dataset['annotations'])}, DT annotations {len(coco_dt.dataset['annotations'])}")
+    #    return None
+    coco_eval = COCOeval(coco_gt, coco_dt, iouType='bbox')
+    coco_eval.evaluate()
+    coco_eval.accumulate()
+    coco_eval.summarize()

@@ -1,8 +1,7 @@
 defaults:
   - squidle_default
-
-folder: squidle_urchin_2011 #squidle_east_tas_urchins
-test_split: 0.0 # 
+folder: squidle_urchin_2011_urchinbot #squidle_east_tas_urchins
+test_split: 1.0 # 
 
 ratio_non_annotated_images: 1
 inclusive: True
@@ -11,15 +10,17 @@ annotation_set_ids:
   #- 13088 # East Tasmania, ClimateChangeAI
   #- 10690 #urchin 2009
   #- 17630 # point training
-
-  - 12479 # urchin 2011
+  - 18106 # urchinbot annotation set
+  #- 12479 # urchin 2011
 coco_mapping:
   - "seaurchin"
   #- "seaurchin"
 squidle_mapping:
-  #- 13029 # sea urchin
-  - 534
+  - 13029 # sea urchin
+  #- 534
 needs_review_annotation_set_ids:
+  - 18106 # urchinbot annotation set
+
 exclude_annotation_set_ids:
 
 
