@@ -1,6 +1,6 @@
 from sqapi.api import SQAPI
 
-api_key = "94dc902ddd52b9e31f9326085116ecf455792216473786295a843ec1" #
+api_key = "" #
 sq_connection = SQAPI(api_key=api_key)
 print(f"sqapi using login {sq_connection.current_user['username']}")
 

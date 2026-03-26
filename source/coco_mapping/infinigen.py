@@ -6,7 +6,7 @@ from glob import glob
 
 import cv2
 import numpy as np
-from datasets.datasets import SourceData
+from .datasets import SourceData
 from scipy.cluster.hierarchy import linkage, fcluster
 from sklearn.model_selection import train_test_split
 from torchvision.io import read_image

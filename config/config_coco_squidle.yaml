@@ -5,3 +5,8 @@ seed: 156
 tags: "dev"
 
 output_dir: ./outputs/
+
+# Optional sidecar outputs during generation (off by default).
+# You can also set these inside a dataset yaml under `dataset.*`.
+write_viz: false
+write_box_txt: false

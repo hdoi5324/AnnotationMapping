@@ -11,6 +11,7 @@ from sqapi.media import SQMediaObject
 
 from .squidle_connection import SquidleConnection
 from .utils_squidle import get_image_name
+from .geometry import bbox_xywh_from_point_rel, bbox_xywh_from_polygon_rel, polygon_px_from_rel
 
 class SquidleData(SourceData):
     def __init__(self, opt, image_dir=None, subdir_paths=None, buffer=0.0):
@@ -164,7 +165,7 @@ class SquidleData(SourceData):
 
     def get_bbox_in_pixels(self, x, y, polygon, width, height, buffer=0.05):
         # Return the bounding box based on the max and min x and y coordinates
-        return get_bbox_in_pixels(x, y, polygon, width, height, buffer=buffer)
+        return bbox_xywh_from_polygon_rel(x, y, polygon, width, height, buffer=buffer)
 
     def get_point_in_pixels(self, x, y, width, height):
         x = int(x * width)
@@ -173,7 +174,7 @@ class SquidleData(SourceData):
 
     def get_bbox_from_point_in_pixels(self, x, y, width, height, buffer=0.035):
         # Creates an estimated bounding box around the point.
-        return get_bbox_from_point_in_pixels(x, y, width, height, buffer=buffer)
+        return bbox_xywh_from_point_rel(x, y, width, height, buffer=buffer)
 
     def get_image_data(self, split, i):
         # Copy image to split directory (test or train)
@@ -209,8 +210,9 @@ class SquidleData(SourceData):
                                                    img.size[0],
                                                    img.size[1],
                                                    buffer=self.buffer)
-                    polygon_in_px = [[int((p[0] + point['x']) * img.size[0]), int((p[1] + point['y']) * img.size[1])]
-                                     for p in point['data']['polygon']]
+                    polygon_in_px = polygon_px_from_rel(
+                        point["x"], point["y"], point["data"]["polygon"], img.size[0], img.size[1]
+                    )
                     ann_data['polygon'] = polygon_in_px
                 elif not polygon_ann:
                     # Point annotation estimation around point.  Rough
@@ -274,27 +276,3 @@ class SquidleData(SourceData):
             else:
                 print(ann["point"])
         return ann_count, annotation_list, list(retrieved_annotation_set_ids)
-
-
-def get_bbox_in_pixels(x, y, polygon, width, height, buffer=0.05):
-    # Return the bounding box based on the max and min x and y coordinates
-
-    min_x = (np.min([p[0] for p in polygon]) + x) * width
-    max_x = (np.max([p[0] for p in polygon]) + x) * width
-    min_y = (np.min([p[1] for p in polygon]) + y) * height
-    max_y = (np.max([p[1] for p in polygon]) + y) * height
-    width_buffer = (max_x - min_x) * buffer
-    height_buffer = (max_y - min_y) * buffer
-    min_x = int(min_x - width_buffer)
-    max_x = int(max_x + width_buffer)
-    min_y = int(min_y - height_buffer)
-    max_y = int(max_y + height_buffer)
-    return [min_x, min_y, max_x - min_x, max_y - min_y]
-
-def get_bbox_from_point_in_pixels(x, y, width, height, buffer=0.035):
-    # Creates an estimated bounding box around the point.
-    min_x = int((x - buffer) * width)
-    max_x = int((x + buffer) * width)
-    min_y = int((y - buffer) * height)
-    max_y = int((y + buffer) * height)
-    return [min_x, min_y, max_x - min_x, max_y - min_y]

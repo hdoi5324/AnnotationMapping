@@ -3,7 +3,6 @@ import os
 import hydra
 from omegaconf import DictConfig
 
-from coco_mapping.utils_coco import new_coco_dataset
 from coco_mapping.generate_coco_annotations import generate_coco_annotations
 from utils.set_random_seed import set_random_seed
 
@@ -34,6 +33,10 @@ def main(opt: DictConfig) -> None:
         dataset = SquidleData(opt.dataset, image_dir=output_dir, subdir_paths=subdir_paths)
     else:
         print(f"Not implemented: {opt.dataset.datatype}")
+        return
+
+    # Allow COCO generation to access root-level flags like write_viz/write_box_txt.
+    dataset.root_opt = opt
     generate_coco_annotations(dataset, subdir_paths['annotations'], opt.dataset.coco_mapping)
 
 

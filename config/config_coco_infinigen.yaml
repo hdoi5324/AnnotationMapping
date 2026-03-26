@@ -4,3 +4,7 @@ defaults:
 
 seed: 156
 output_dir: ~/phd_data/infinigen/collated_outputs/
+
+# Optional sidecar outputs during generation (off by default).
+write_viz: false
+write_box_txt: false

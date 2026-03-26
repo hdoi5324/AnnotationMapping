@@ -111,7 +111,7 @@ if __name__ == "__main__":
 
     HERE = os.path.dirname(os.path.abspath(__file__))
     data = create_csv_list()
-    API_TOKEN = "94dc902ddd52b9e31f9326085116ecf455792216473786295a843ec1" #data.load_token(HERE)
+    API_TOKEN = "" #data.load_token(HERE)
     sq_connection = SQAPI(api_key=API_TOKEN)
     print(f"sqapi using login {sq_connection.current_user['username']}")
 
