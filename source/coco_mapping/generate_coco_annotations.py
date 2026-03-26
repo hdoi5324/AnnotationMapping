@@ -94,3 +94,4 @@ def generate_coco_annotations(dataset, annotation_path, coco_mapping_list):
         # Save dataset
         with open(dataset_file, "w") as fp:
             json.dump(coco_dataset, fp)
+        print(f"Saved to {dataset_file} with {len(image_list)} images and {len(ann_list)} annotations")
